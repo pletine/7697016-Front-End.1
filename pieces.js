@@ -1,5 +1,18 @@
+import { ajoutListenersAvis, ajoutListenerEnvoyerAvis } from "./avis.js";
+
 // Récupération des pièces depuis le fichier JSON
-const pieces = await fetch("pieces-autos.json").then(pieces => pieces.json());
+const reponse = await fetch("http://localhost:8081/pieces");
+const pieces = await reponse.json()     
+
+// Transformation des pièces en JSON
+const valeurPieces = JSON.stringify(pieces);
+// Stockage des informations dans le localStorage
+window.localStorage.setItem("pieces", valeurPieces);
+// Alternative en une seule ligne
+// const pieces = await fetch("http://localhost:8081/pieces").then(pieces => pieces.json());
+
+// on appelle la fonction pour ajouter le listener au formulaire
+ajoutListenerEnvoyerAvis();
 
 // Fonction qui génère toute la page web
 function genererPieces(pieces) {
@@ -34,10 +47,19 @@ function genererPieces(pieces) {
         const dispoElement = document.createElement("p");
         dispoElement.innerText = pieces[i].dispo ? "En stock" : "Rupture de stock";
         pieceElement.appendChild(dispoElement);
+
+        // Avis
+        const avisBouton = document.createElement("button");
+        avisBouton.dataset.id = pieces[i].id;
+        avisBouton.textContent = "Afficher les avis";
+        pieceElement.appendChild(avisBouton);
         
         // On rattache la balise article au body
         document.querySelector(".fiches").appendChild(pieceElement);
     }
+
+    // Ajout de la fonction ajoutListenersAvis
+    ajoutListenersAvis();
 }
 
 // Premier affichage de la page
