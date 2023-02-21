@@ -1,4 +1,4 @@
-import { ajoutListenersAvis, ajoutListenerEnvoyerAvis } from "./avis.js";
+import { ajoutListenersAvis, ajoutListenerEnvoyerAvis, afficherAvis } from "./avis.js";
 
 //Récupération des pièces eventuellement stockées dans le localStorage
 let pieces = window.localStorage.getItem('pieces');
@@ -24,6 +24,7 @@ function genererPieces(pieces) {
     for (let i = 0; i < pieces.length; i++) {
         // Création d’une balise dédiée à une pièce automobile
         const pieceElement = document.createElement("article");
+        pieceElement.setAttribute("id", `piece-${i+1}`)
         
         // On crée l’élément img.
         const imageElement = document.createElement("img");
@@ -70,6 +71,30 @@ function genererPieces(pieces) {
 // Premier affichage de la page
 genererPieces(pieces);
 
+/* Récupération et Affichage des avis */
+for(let i=0; i < pieces.length; i++)
+{
+    const id = pieces[i].id;
+    let avis = window.localStorage.getItem(`avis-pieces-${id}`);
+    if(avis === null) {
+        const reponse = await fetch("http://localhost:8081/pieces/" + id + "/avis");
+        avis = await reponse.json();
+        const valeurAvis = JSON.stringify(avis);
+        window.localStorage.setItem(`avis-pieces-${id}`, valeurAvis);
+    }
+    else {
+        avis = JSON.parse(avis);
+    }
+
+    const pieceElement = document.querySelector(`article[id=piece-${i+1}]`);
+    afficherAvis(pieceElement, avis);
+}
+
+
+
+
+
+/* Actions lors des appuis sur les boutons disponibles */
 // Tri par prix croissant sur le bouton dédié
 const boutonTrier = document.querySelector(".btn-trier");
 boutonTrier.addEventListener("click", function () {
