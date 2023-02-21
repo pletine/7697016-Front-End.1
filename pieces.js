@@ -1,15 +1,20 @@
 import { ajoutListenersAvis, ajoutListenerEnvoyerAvis } from "./avis.js";
 
-// Récupération des pièces depuis le fichier JSON
-const reponse = await fetch("http://localhost:8081/pieces");
-const pieces = await reponse.json()     
-
-// Transformation des pièces en JSON
-const valeurPieces = JSON.stringify(pieces);
-// Stockage des informations dans le localStorage
-window.localStorage.setItem("pieces", valeurPieces);
-// Alternative en une seule ligne
-// const pieces = await fetch("http://localhost:8081/pieces").then(pieces => pieces.json());
+//Récupération des pièces eventuellement stockées dans le localStorage
+let pieces = window.localStorage.getItem('pieces');
+if (pieces === null){
+   // Récupération des pièces depuis l'API
+   const reponse = await fetch('http://localhost:8081/pieces/');
+   pieces = await reponse.json();
+   // Transformation des pièces en JSON
+   const valeurPieces = JSON.stringify(pieces);
+   // Stockage des informations dans le localStorage
+   window.localStorage.setItem("pieces", valeurPieces);
+}else{
+    pieces = JSON.parse(pieces);
+    // Alternative en une seule ligne avec la ligne fetch
+    // const pieces = await fetch("http://localhost:8081/pieces").then(pieces => pieces.json());
+}
 
 // on appelle la fonction pour ajouter le listener au formulaire
 ajoutListenerEnvoyerAvis();
@@ -185,4 +190,11 @@ inputRangeMaxPrice.addEventListener("input", function () {
     document.querySelector(".fiches").innerHTML = "";
     genererPieces(piecesMaxprice);
     valueShow.innerHTML = inputRangeMaxPrice.value;
+});
+
+
+// Ajout du listener pour mettre à jour des données du localStorage
+const boutonMettreAJour = document.querySelector(".btn-maj");
+boutonMettreAJour.addEventListener("click", function () {
+  window.localStorage.removeItem("pieces");
 });
